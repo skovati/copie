@@ -24,6 +24,7 @@ jobs:
           path: |
             ./build
             ./**/build
+            ./deployment
             ./sequencing-server
             ./merlin-server/constraints-dsl-compiler
             ./scheduler-worker/scheduling-dsl-compiler
@@ -70,6 +71,7 @@ jobs:
           path: |
             ./build
             ./**/build
+            ./deployment
             ./sequencing-server
             ./merlin-server/constraints-dsl-compiler
             ./scheduler-worker/scheduling-dsl-compiler
