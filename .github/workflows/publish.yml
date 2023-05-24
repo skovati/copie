@@ -22,12 +22,9 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
-            ~/.gradle
             ./build
             ./**/build
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          key: ${{ runner.os }}-gradle-${{ github.sha }}
       - uses: gradle/wrapper-validation-action@v1
       - name: assemble project
         run: ./gradlew assemble --parallel --no-daemon
@@ -48,11 +45,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
-            ~/.gradle
             ./build
             ./**/build
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          key: ${{ runner.os }}-gradle-${{ github.sha }}
       - name: check for output
         run: ls ./merlin-server/build
