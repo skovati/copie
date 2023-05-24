@@ -70,29 +70,6 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/skovati/aerie-merlin
 
-      - name: Build aerie-merlin Docker image
-        uses: docker/build-push-action@v3
-        with:
-          context: ./merlin-server
-          load: true
-          tags: ${{ env.REGISTRY }}/skovati/aerie-merlin:${{ github.sha }}
-
-      - name: Scan aerie-merlin Docker image
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ env.REGISTRY }}/skovati/aerie-merlin:${{ github.sha }}
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          exit-code: '0'
-          ignore-unfixed: true
-          severity: 'CRITICAL'
-          timeout: 10m0s
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: 'trivy-results.sarif'
-
       - name: Push aerie-merlin Docker image
         uses: docker/build-push-action@v3
         with:
@@ -101,3 +78,20 @@ jobs:
           push: true
           tags: ${{ steps.aerieMerlin.outputs.tags }}
           labels: ${{ steps.aerieMerlin.outputs.labels }}
+
+      - name: Scan aerie-merlin Docker image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/skovati/aerie-merlin:main
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          exit-code: '0'
+          ignore-unfixed: true
+          severity: 'CRITICAL'
+          timeout: 10m0s
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: ${{ always() }}
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
