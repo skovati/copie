@@ -33,27 +33,28 @@ jobs:
   build-push:
     strategy:
       matrix:
-        - image: aerie-merlin
-          context: ./merlin-server
-          file: ./merlin-server/Dockerfile
-        - image: aerie-merlin-worker
-          context: ./merlin-worker
-          file: ./merlin-worker/Dockerfile
-        - image: aerie-scheduler
-          context: ./scheduler-server
-          file: ./scheduler-server/Dockerfile
-        - image: aerie-scheduler-worker
-          context: ./scheduler-worker
-          file: ./scheduler-worker/Dockerfile
-        - image: aerie-sequencing
-          context: ./sequencing-server
-          file: ./sequencing-server/Dockerfile
-        - image: aerie-hasura
-          context: .
-          file: ./docker/Dockerfile.hasura
-        - image: aerie-postgres
-          context: .
-          file: ./docker/Dockerfile.postgres
+        components:
+          - image: aerie-merlin
+            context: ./merlin-server
+            file: ./merlin-server/Dockerfile
+          - image: aerie-merlin-worker
+            context: ./merlin-worker
+            file: ./merlin-worker/Dockerfile
+          - image: aerie-scheduler
+            context: ./scheduler-server
+            file: ./scheduler-server/Dockerfile
+          - image: aerie-scheduler-worker
+            context: ./scheduler-worker
+            file: ./scheduler-worker/Dockerfile
+          - image: aerie-sequencing
+            context: ./sequencing-server
+            file: ./sequencing-server/Dockerfile
+          - image: aerie-hasura
+            context: .
+            file: ./docker/Dockerfile.hasura
+          - image: aerie-postgres
+            context: .
+            file: ./docker/Dockerfile.postgres
     needs: compile
     runs-on: ubuntu-latest
     permissions:
@@ -89,13 +90,13 @@ jobs:
         id: metadataStep
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/skovati/${{ matrix.image }}
+          images: ${{ env.REGISTRY }}/skovati/${{ matrix.components.image }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
-          context: ${{ matrix.context }}
-          file: ${{ matrix.file }}
+          context: ${{ matrix.components.context }}
+          file: ${{ matrix.components.file }}
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.metadataStep.outputs.tags }}
