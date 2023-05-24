@@ -25,6 +25,8 @@ jobs:
             ./build
             ./**/build
             ./sequencing-server
+            ./merlin-server/constraints-dsl-compiler
+            ./scheduler-worker/scheduling-dsl-compiler
           key: ${{ runner.os }}-gradle-${{ github.sha }}
       - uses: gradle/wrapper-validation-action@v1
       - name: assemble project
@@ -69,6 +71,8 @@ jobs:
             ./build
             ./**/build
             ./sequencing-server
+            ./merlin-server/constraints-dsl-compiler
+            ./scheduler-worker/scheduling-dsl-compiler
           key: ${{ runner.os }}-gradle-${{ github.sha }}
 
       - name: Set up QEMU
@@ -118,7 +122,7 @@ jobs:
     permissions:
       security-events: write
     steps:
-      - name: Scan aerie-merlin Docker image
+      - name: Scan Docker image
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.REGISTRY }}/skovati/${{ matrix.image }}:main
