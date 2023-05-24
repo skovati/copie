@@ -30,14 +30,44 @@ jobs:
       - name: assemble project
         run: ./gradlew assemble --parallel --no-daemon
 
-  build:
+  build-push:
+    strategy:
+      matrix:
+        image:
+          - aerie-merlin
+          - aerie-merlin-worker
+          - aerie-scheduler
+          - aerie-scheduler-worker
+          - aerie-sequencing
+          - aerie-hasura
+          - aerie-postgres
+        include:
+          - image: aerie-merlin
+            context: ./merlin-server
+            file: ./merlin-server/Dockerfile
+          - image: aerie-merlin-worker
+            context: ./merlin-worker
+            file: ./merlin-worker/Dockerfile
+          - image: aerie-scheduler
+            context: ./scheduler-server
+            file: ./scheduler-server/Dockerfile
+          - image: aerie-scheduler-worker
+            context: ./scheduler-worker
+            file: ./scheduler-worker/Dockerfile
+          - image: aerie-sequencing
+            context: ./sequencing-server
+            file: ./sequencing-server/Dockerfile
+          - image: aerie-hasura
+            context: .
+            file: ./docker/Dockerfile.hasura
+          - image: aerie-postgres
+            context: .
+            file: ./docker/Dockerfile.postgres
     needs: compile
     runs-on: ubuntu-latest
     permissions:
-      checks: write
       contents: read
       packages: write
-      security-events: write
     steps:
       - uses: actions/checkout@v3
 
@@ -64,28 +94,45 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: Extract metadata (tags, labels) for aerie-merlin Docker image
-        id: aerieMerlin
+      - name: Extract metadata (tags, labels) for Docker image
+        id: metadataStep
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/skovati/aerie-merlin
+          images: ${{ env.REGISTRY }}/skovati/${{ matrix.image }}
 
-      - name: Push aerie-merlin Docker image
+      - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
-          context: ./merlin-server
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ steps.aerieMerlin.outputs.tags }}
-          labels: ${{ steps.aerieMerlin.outputs.labels }}
+          tags: ${{ steps.metadataStep.outputs.tags }}
+          labels: ${{ steps.metadataStep.outputs.labels }}
 
+  scan:
+    strategy:
+      matrix:
+        image:
+          - aerie-merlin
+          - aerie-merlin-worker
+          - aerie-scheduler
+          - aerie-scheduler-worker
+          - aerie-sequencing
+          - aerie-hasura
+          - aerie-postgres
+    needs: build-push
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
       - name: Scan aerie-merlin Docker image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.REGISTRY }}/skovati/aerie-merlin:main
+          image-ref: ${{ env.REGISTRY }}/skovati/${{ matrix.image }}:main
           ignore-unfixed: true
           severity: 'CRITICAL'
-          format: 'template'
+          format: 'serif'
           template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'
 
