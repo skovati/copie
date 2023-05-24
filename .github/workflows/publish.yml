@@ -26,7 +26,7 @@ jobs:
         run: ./gradlew assemble
 
   build:
-    depends-on: compile
+    needs: compile
     runs-on: ubuntu-latest
     permissions:
       checks: write
