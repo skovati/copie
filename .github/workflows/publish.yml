@@ -33,36 +33,27 @@ jobs:
   build-push:
     strategy:
       matrix:
-        image:
-          - aerie-merlin
-          - aerie-merlin-worker
-          - aerie-scheduler
-          - aerie-scheduler-worker
-          - aerie-sequencing
-          - aerie-hasura
-          - aerie-postgres
-        include:
-          - image: aerie-merlin
-            context: ./merlin-server
-            file: ./merlin-server/Dockerfile
-          - image: aerie-merlin-worker
-            context: ./merlin-worker
-            file: ./merlin-worker/Dockerfile
-          - image: aerie-scheduler
-            context: ./scheduler-server
-            file: ./scheduler-server/Dockerfile
-          - image: aerie-scheduler-worker
-            context: ./scheduler-worker
-            file: ./scheduler-worker/Dockerfile
-          - image: aerie-sequencing
-            context: ./sequencing-server
-            file: ./sequencing-server/Dockerfile
-          - image: aerie-hasura
-            context: .
-            file: ./docker/Dockerfile.hasura
-          - image: aerie-postgres
-            context: .
-            file: ./docker/Dockerfile.postgres
+        - image: aerie-merlin
+          context: ./merlin-server
+          file: ./merlin-server/Dockerfile
+        - image: aerie-merlin-worker
+          context: ./merlin-worker
+          file: ./merlin-worker/Dockerfile
+        - image: aerie-scheduler
+          context: ./scheduler-server
+          file: ./scheduler-server/Dockerfile
+        - image: aerie-scheduler-worker
+          context: ./scheduler-worker
+          file: ./scheduler-worker/Dockerfile
+        - image: aerie-sequencing
+          context: ./sequencing-server
+          file: ./sequencing-server/Dockerfile
+        - image: aerie-hasura
+          context: .
+          file: ./docker/Dockerfile.hasura
+        - image: aerie-postgres
+          context: .
+          file: ./docker/Dockerfile.postgres
     needs: compile
     runs-on: ubuntu-latest
     permissions:
@@ -132,7 +123,7 @@ jobs:
           image-ref: ${{ env.REGISTRY }}/skovati/${{ matrix.image }}:main
           ignore-unfixed: true
           severity: 'CRITICAL'
-          format: 'serif'
+          format: 'sarif'
           template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'
 
