@@ -19,11 +19,10 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "19"
-          cache: gradle
       - uses: gradle/wrapper-validation-action@v1
       - uses: gradle/gradle-build-action@v2
-      - name: Assemble
-        run: ./gradlew assemble
+        with:
+          arguments: assemble
 
   build:
     needs: compile
@@ -38,10 +37,9 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "19"
-          cache: gradle
       - uses: gradle/wrapper-validation-action@v1
       - uses: gradle/gradle-build-action@v2
-      - name: Assemble
-        run: ./gradlew assemble
+        with:
+          arguments: assemble
       - name: check for output
         run: ls ./merlin-server/build
