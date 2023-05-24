@@ -1,0 +1,289 @@
+interface Error {
+  message: String!
+}
+
+enum FallibleStatus {
+  SUCCESS
+  FAILURE
+}
+
+interface Fallible {
+  status: FallibleStatus!
+  errors: [Error!]!
+}
+
+type Mutation {
+  addExternalDataset(planId: Int!, datasetStart: String!, profileSet: ProfileSet!): AddExternalDatasetResponse
+}
+
+type Mutation {
+  extendExternalDataset(datasetId: Int!, profileSet: ProfileSet!): AddExternalDatasetResponse
+}
+
+type Mutation {
+  uploadDictionary(dictionary: String!): CommandDictionaryResponse
+}
+
+type Mutation {
+  addCommandExpansionTypeScript(
+    activityTypeName: String!
+    expansionLogic: String!
+    authoringCommandDictionaryId: Int
+    authoringMissionModelId: Int
+  ): AddCommandExpansionResponse
+}
+
+type Mutation {
+  createExpansionSet(commandDictionaryId: Int!, missionModelId: Int!, expansionIds: [Int!]!): ExpansionSetResponse
+}
+
+type Mutation {
+  expandAllActivities(expansionSetId: Int!, simulationDatasetId: Int!): ExpandAllActivitiesResponse
+}
+
+type Query {
+  getModelEffectiveArguments(missionModelId: ID!, modelArguments: ModelArguments!): EffectiveArgumentsResponse
+}
+
+type Query {
+  getActivityEffectiveArguments(
+    missionModelId: ID!
+    activityTypeName: String!
+    activityArguments: ActivityArguments!
+  ): EffectiveArgumentsResponse
+}
+
+type Query {
+  getActivityTypeScript(missionModelId: Int!, activityTypeName: String!): DslTypescriptResponse
+}
+
+type Query {
+  getCommandTypeScript(commandDictionaryId: Int!): DslTypescriptResponse
+}
+
+type Query {
+  resourceTypes(missionModelId: ID!): [ResourceType!]!
+}
+
+type Query {
+  schedule(specificationId: Int!): SchedulingResponse
+}
+
+type Query {
+  schedulingDslTypescript(missionModelId: Int!): DslTypescriptResponse
+}
+
+type Query {
+  constraintsDslTypescript(missionModelId: ID!, planId: Int): DslTypescriptResponse
+}
+
+type Query {
+  simulate(planId: Int!): MerlinSimulationResponse
+}
+
+type Query {
+  resourceSamples(planId: Int!): ResourceSamplesResponse
+}
+
+type Query {
+  constraintViolations(planId: Int!): ConstraintViolationsResponse
+}
+
+type Query {
+  validateActivityArguments(
+    activityTypeName: String!
+    missionModelId: ID!
+    activityArguments: ActivityArguments!
+  ): ValidationResponse
+}
+
+type Query {
+  validateModelArguments(missionModelId: ID!, modelArguments: ModelArguments!): ValidationResponse
+}
+
+type Query {
+  validatePlan(planId: Int!): ValidationResponse
+}
+
+type Query {
+  getSequenceSeqJson(seqId: String!, simulationDatasetId: Int!): GetSeqJsonResponse!
+    @deprecated(reason: "Use bulk query getSequenceSeqJsonBulk instead")
+}
+
+input GetSequenceSeqJsonsInput {
+  seqId: String!
+  simulationDatasetId: Int!
+}
+
+type Query {
+  getSequenceSeqJsonBulk(inputs: [GetSequenceSeqJsonsInput!]!): [GetSeqJsonResponse!]!
+}
+
+type Query {
+  getUserSequenceSeqJson(commandDictionaryID: Int!, edslBody: String!): GetSeqJsonResponse!
+    @deprecated(reason: "Use bulk query getUserSequenceSeqJsonBulk instead")
+}
+
+input GetUserSequenceSeqJsonBulkInput {
+  commandDictionaryId: Int!
+  edslBody: String!
+}
+
+type Query {
+  getUserSequenceSeqJsonBulk(inputs: [GetUserSequenceSeqJsonBulkInput!]!): [GetSeqJsonResponse!]!
+}
+
+type GetSeqJsonResponse implements Fallible {
+  status: FallibleStatus!
+  errors: [UserCodeError!]!
+  seqJson: SequenceSeqJson
+}
+
+type Query {
+  getEdslForSeqJson(seqJson: SequenceSeqJson!): String!
+    @deprecated(reason: "Use bulk query getEdslForSeqJsonBulk instead")
+}
+
+type Query {
+  getEdslForSeqJsonBulk(seqJsons: [SequenceSeqJson!]!): [String!]!
+}
+
+enum MerlinSimulationStatus {
+  complete
+  failed
+  incomplete
+}
+
+enum SchedulingStatus {
+  complete
+  failed
+  incomplete
+}
+
+type ResourceType {
+  name: String!
+  schema: ResourceSchema!
+}
+
+type MerlinSimulationResponse {
+  status: MerlinSimulationStatus!
+  simulationDatasetId: Int!
+  reason: MerlinSimulationFailureReason
+}
+
+type ValidationResponse {
+  errors: [ValidationNotice!]
+  success: Boolean!
+}
+
+type ValidationNotice {
+  subjects: [String!]!
+  message: String!
+}
+
+type EffectiveArgumentsResponse {
+  success: Boolean!
+  arguments: ActivityArguments
+  errors: [String!]
+}
+
+type AddExternalDatasetResponse {
+  datasetId: Int!
+}
+
+type SchedulingResponse {
+  status: SchedulingStatus!
+  reason: SchedulingFailureReason
+  analysisId: Int!
+  datasetId: Int
+}
+
+type DslTypescriptResponse {
+  status: DslTypescriptResponseStatus!
+  typescriptFiles: [TypescriptFile!]
+  reason: String
+}
+
+enum DslTypescriptResponseStatus {
+  success
+  failure
+}
+
+type TypescriptFile {
+  filePath: String
+  content: String
+}
+
+type CommandDictionaryResponse {
+  id: Int!
+  command_types_typescript_path: String!
+  mission: String!
+  version: String!
+  parsed_json: CommandDictionary!
+  created_at: String!
+}
+
+type ExpansionSetResponse {
+  id: Int!
+}
+
+type AddCommandExpansionResponse {
+  id: Int!
+  errors: [UserCodeError!]
+}
+
+type ExpandAllActivitiesResponse {
+  id: Int!
+  expandedActivityInstances: [ExpandedActivityInstance!]!
+}
+
+type ExpandedActivityInstance {
+  id: Int!
+  commands: [CommandSeqJson!]
+  errors: [UserCodeError!]!
+}
+
+type UserCodeError implements Error {
+  message: String!
+  stack: String!
+  location: CodeLocation
+}
+
+type CodeLocation {
+  line: Int!
+  column: Int!
+}
+
+type ResourceSamplesResponse {
+  resourceSamples: ResourceSamples!
+}
+
+type ConstraintViolationsResponse {
+  violations: ConstraintViolations!
+}
+
+scalar ResourceSchema
+
+scalar ResourceSamples
+
+scalar ConstraintViolations
+
+scalar MerlinSimulationFailureReason
+
+scalar ModelArguments
+
+scalar ActivityArguments
+
+scalar ProfileSet
+
+scalar SchedulingFailureReason
+
+scalar CommandArgumentsSeqJson
+
+scalar CommandSeqJson
+
+scalar SequenceSeqJson
+
+scalar CommandDictionary
+
+scalar Any

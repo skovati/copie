@@ -1,0 +1,56 @@
+plugins {
+  id 'java-library'
+  id 'jacoco'
+  id 'maven-publish'
+}
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(19)
+  }
+}
+
+test {
+  useJUnitPlatform()
+}
+
+jacocoTestReport {
+  dependsOn test
+  reports {
+    xml.required = true
+  }
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation project(':merlin-driver')
+  implementation project(':merlin-sdk')
+  implementation project(':parsing-utilities')
+
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+}
+
+publishing {
+  publications {
+    library(MavenPublication) {
+      version = findProperty('publishing.version')
+      from components.java
+    }
+  }
+
+  publishing {
+    repositories {
+      maven {
+        name = findProperty("publishing.name")
+        url = findProperty("publishing.url")
+        credentials {
+          username = System.getenv(findProperty("publishing.usernameEnvironmentVariable"))
+          password = System.getenv(findProperty("publishing.passwordEnvironmentVariable"))
+        }
+      }
+    }
+  }
+}

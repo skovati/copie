@@ -1,0 +1,34 @@
+rootProject.name = 'aerie'
+
+// Mission Model support
+include 'merlin-sdk'
+include 'merlin-driver'
+include 'merlin-framework'
+include 'merlin-framework-junit'
+include 'merlin-framework-processor'
+include 'contrib'
+
+// Service support
+include 'parsing-utilities'
+
+// Services for deployment within the Aerie infrastructure
+include 'merlin-server'
+include 'merlin-worker'
+include 'scheduler-server'
+include 'scheduler-worker'
+include 'sequencing-server'
+
+// Command-line interface direct to services
+include 'constraints'
+include 'scheduler-driver'
+
+// Testing
+include 'db-tests'
+include 'e2e-tests'
+
+// Example mission models
+include 'examples:banananation'
+include 'examples:foo-missionmodel'
+include 'examples:config-with-defaults'
+include 'examples:config-without-defaults'
+include 'examples:minimal-mission-model'

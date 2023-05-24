@@ -1,0 +1,104 @@
+table:
+  name: plan
+  schema: public
+object_relationships:
+- name: mission_model
+  using:
+    foreign_key_constraint_on: model_id
+- name: parent_plan
+  using:
+    manual_configuration:
+      column_mapping:
+        parent_id: id
+      insertion_order: null
+      remote_table:
+        name: plan
+        schema: public
+array_relationships:
+- name: activity_directives
+  using:
+    foreign_key_constraint_on:
+      column: plan_id
+      table:
+        name: activity_directive
+        schema: public
+- name: constraints
+  using:
+    foreign_key_constraint_on:
+      column: plan_id
+      table:
+        name: constraint
+        schema: public
+- name: collaborators
+  using:
+    foreign_key_constraint_on:
+      column: plan_id
+      table:
+        name: plan_collaborators
+        schema: public
+- name: datasets
+  using:
+    foreign_key_constraint_on:
+      column: plan_id
+      table:
+        name: plan_dataset
+        schema: public
+- name: simulations
+  using:
+    foreign_key_constraint_on:
+      column: plan_id
+      table:
+        name: simulation
+        schema: public
+- name: child_plans
+  using:
+    manual_configuration:
+      column_mapping:
+        id: parent_id
+      insertion_order: null
+      remote_table:
+        name: plan
+        schema: public
+remote_relationships:
+- name: scheduling_specifications
+  definition:
+    to_source:
+      relationship_type: array
+      source: AerieScheduler
+      table:
+        schema: public
+        name: scheduling_specification
+      field_mapping:
+        id: plan_id
+select_permissions:
+  - role: user
+    permission:
+      columns: [id, revision, name, model_id, duration, start_time, parent_id, is_locked,
+                 created_at, updated_at, owner, updated_by]
+      filter: {}
+      allow_aggregations: true
+  - role: viewer
+    permission:
+      columns: [id, revision, name, model_id, duration, start_time, parent_id, is_locked,
+                 created_at, updated_at, owner, updated_by]
+      filter: {}
+      allow_aggregations: true
+insert_permissions:
+  - role: user
+    permission:
+      columns: [name, duration, model_id, parent_id, start_time]
+      check: {}
+      set:
+        owner: "x-hasura-user-id"
+        updated_by: "x-hasura-user-id"
+update_permissions:
+  - role: user
+    permission:
+      columns: [name, owner]
+      filter: {"owner":{"_eq":"X-Hasura-User-Id"}}
+      set:
+        updated_by: "x-hasura-user-id"
+delete_permissions:
+  - role: user
+    permission:
+      filter: {"owner":{"_eq":"X-Hasura-User-Id"}}

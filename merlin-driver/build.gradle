@@ -1,0 +1,68 @@
+plugins {
+  id 'java-library'
+  id 'maven-publish'
+  id 'jacoco'
+}
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(19)
+  }
+
+  withJavadocJar()
+  withSourcesJar()
+}
+
+test {
+  useJUnitPlatform {
+    includeEngines 'jqwik', 'junit-jupiter'
+  }
+}
+
+jacocoTestReport {
+  dependsOn test
+  reports {
+    xml.required = true
+  }
+}
+
+// Link references to standard Java classes to the official Java 11 documentation.
+javadoc.options.links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
+javadoc.options.links 'https://commons.apache.org/proper/commons-lang/javadocs/api-3.9/'
+javadoc.options.addStringOption('Xdoclint:none', '-quiet')
+
+dependencies {
+  implementation project(':parsing-utilities')
+
+  api project(':merlin-sdk')
+  api 'org.glassfish:javax.json:1.1.4'
+  implementation 'it.unimi.dsi:fastutil:8.5.6'
+
+  testImplementation project(':merlin-framework')
+  testImplementation project(':merlin-framework-junit')
+  testImplementation project(':contrib')
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+  testImplementation "net.jqwik:jqwik:1.6.5"
+}
+
+publishing {
+  publications {
+    library(MavenPublication) {
+      version = findProperty('publishing.version')
+      from components.java
+    }
+  }
+
+  publishing {
+    repositories {
+      maven {
+        name = findProperty("publishing.name")
+        url = findProperty("publishing.url")
+        credentials {
+          username = System.getenv(findProperty("publishing.usernameEnvironmentVariable"))
+          password = System.getenv(findProperty("publishing.passwordEnvironmentVariable"))
+        }
+      }
+    }
+  }
+}

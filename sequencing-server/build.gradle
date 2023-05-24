@@ -1,0 +1,34 @@
+plugins {
+  id 'com.github.node-gradle.node' version '3.5.0'
+}
+
+node {
+  version = '18.13.0'
+  download = true
+}
+
+task assemble(type: NpmTask) {
+  dependsOn processResources
+  dependsOn npmInstall
+  args = ['run', 'build']
+}
+
+task build {
+  dependsOn assemble
+}
+
+//task test(type: NpmTask) {
+//  dependsOn processResources
+//  dependsOn npmInstall
+//  args = ['run', 'test']
+//}
+
+task clean(type: Delete) {
+  dependsOn undoDistributeSql
+  delete 'build'
+}
+
+task e2eTest(type: NpmTask) {
+  dependsOn npmInstall
+  args = ['run', 'test']
+}

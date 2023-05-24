@@ -1,0 +1,13 @@
+table:
+  name: plan_snapshot
+  schema: public
+object_relationships:
+- name: plan
+  using:
+    manual_configuration:
+      column_mapping:
+        plan_id: id
+      insertion_order: null
+      remote_table:
+        name: plan
+        schema: public

@@ -1,0 +1,185 @@
+actions:
+  - name: addExternalDataset
+    definition:
+      kind: synchronous
+      handler: "{{AERIE_MERLIN_URL}}/addExternalDataset"
+      timeout: 300
+  - name: extendExternalDataset
+    definition:
+      kind: synchronous
+      handler: "{{AERIE_MERLIN_URL}}/extendExternalDataset"
+      timeout: 300
+  - name: uploadDictionary
+    definition:
+      kind: synchronous
+      handler: "{{AERIE_SEQUENCING_URL}}/put-dictionary"
+      timeout: 300
+  - name: addCommandExpansionTypeScript
+    definition:
+      kind: synchronous
+      handler: "{{AERIE_SEQUENCING_URL}}/command-expansion/put-expansion"
+      timeout: 300
+  - name: createExpansionSet
+    definition:
+      kind: synchronous
+      handler: "{{AERIE_SEQUENCING_URL}}/command-expansion/put-expansion-set"
+      timeout: 300
+  - name: expandAllActivities
+    definition:
+      kind: synchronous
+      handler: "{{AERIE_SEQUENCING_URL}}/command-expansion/expand-all-activity-instances"
+      timeout: 300
+  - name: getEdslForSeqJson
+    definition:
+      kind: synchronous
+      handler: "{{AERIE_SEQUENCING_URL}}/seqjson/get-edsl-for-seqjson"
+      timeout: 300
+  - name: getEdslForSeqJsonBulk
+    definition:
+      kind: synchronous
+      handler: "{{AERIE_SEQUENCING_URL}}/seqjson/bulk-get-edsl-for-seqjson"
+      timeout: 300
+  - name: getModelEffectiveArguments
+    definition:
+      kind: ""
+      handler: "{{AERIE_MERLIN_URL}}/getModelEffectiveArguments"
+      timeout: 300
+  - name: getActivityEffectiveArguments
+    definition:
+      kind: ""
+      handler: "{{AERIE_MERLIN_URL}}/getActivityEffectiveArguments"
+      timeout: 300
+  - name: getActivityTypeScript
+    definition:
+      kind: ""
+      handler: "{{AERIE_SEQUENCING_URL}}/get-activity-typescript"
+      timeout: 300
+  - name: getCommandTypeScript
+    definition:
+      kind: ""
+      handler: "{{AERIE_SEQUENCING_URL}}/get-command-typescript"
+      timeout: 300
+  - name: getSequenceSeqJson
+    definition:
+      kind: ""
+      handler: "{{AERIE_SEQUENCING_URL}}/seqjson/get-seqjson-for-seqid-and-simulation-dataset"
+      timeout: 300
+  - name: getSequenceSeqJsonBulk
+    definition:
+      kind: ""
+      handler: "{{AERIE_SEQUENCING_URL}}/seqjson/bulk-get-seqjson-for-seqid-and-simulation-dataset"
+      timeout: 300
+  - name: getUserSequenceSeqJson
+    definition:
+      kind: ""
+      handler: "{{AERIE_SEQUENCING_URL}}/seqjson/get-seqjson-for-sequence-standalone"
+      timeout: 300
+  - name: getUserSequenceSeqJsonBulk
+    definition:
+      kind: ""
+      handler: "{{AERIE_SEQUENCING_URL}}/seqjson/bulk-get-seqjson-for-sequence-standalone"
+      timeout: 300
+  - name: resourceTypes
+    definition:
+      kind: ""
+      handler: "{{AERIE_MERLIN_URL}}/resourceTypes"
+      timeout: 300
+  - name: schedule
+    definition:
+      kind: ""
+      handler: "{{AERIE_SCHEDULER_URL}}/schedule"
+      timeout: 300
+  - name: schedulingDslTypescript
+    definition:
+      kind: ""
+      handler: "{{AERIE_SCHEDULER_URL}}/schedulingDslTypescript"
+      timeout: 300
+  - name: constraintsDslTypescript
+    definition:
+      kind: ""
+      handler: "{{AERIE_MERLIN_URL}}/constraintsDslTypescript"
+      timeout: 300
+  - name: simulate
+    definition:
+      kind: ""
+      handler: "{{AERIE_MERLIN_URL}}/getSimulationResults"
+      timeout: 300
+  - name: resourceSamples
+    definition:
+      kind: ""
+      handler: "{{AERIE_MERLIN_URL}}/resourceSamples"
+      timeout: 300
+  - name: constraintViolations
+    definition:
+      kind: ""
+      handler: "{{AERIE_MERLIN_URL}}/constraintViolations"
+      timeout: 300
+  - name: validateActivityArguments
+    definition:
+      kind: ""
+      handler: "{{AERIE_MERLIN_URL}}/validateActivityArguments"
+      timeout: 300
+  - name: validateModelArguments
+    definition:
+      kind: ""
+      handler: "{{AERIE_MERLIN_URL}}/validateModelArguments"
+      timeout: 300
+  - name: validatePlan
+    definition:
+      kind: ""
+      handler: "{{AERIE_MERLIN_URL}}/validatePlan"
+      timeout: 300
+custom_types:
+  enums:
+    - name: MerlinSimulationStatus
+      values:
+        - description: null
+          is_deprecated: null
+          value: complete
+        - description: null
+          is_deprecated: null
+          value: failed
+        - description: null
+          is_deprecated: null
+          value: incomplete
+    - name: SchedulingStatus
+      values:
+        - description: null
+          is_deprecated: null
+          value: complete
+        - description: null
+          is_deprecated: null
+          value: failed
+        - description: null
+          is_deprecated: null
+          value: incomplete
+  input_objects: []
+  objects:
+    - name: ResourceType
+    - name: MerlinSimulationResponse
+    - name: ValidationResponse
+    - name: ValidationNotice
+    - name: EffectiveArgumentsResponse
+    - name: AddExternalDatasetResponse
+    - name: SchedulingResponse
+    - name: DslTypescriptResponse
+    - name: CommandDictionaryResponse
+    - name: AddCommandExpansionResponse
+    - name: ExpandAllActivitiesResponse
+    - name: ExpandedActivityInstance
+    - name: UserCodeError
+    - name: CodeLocation
+    - name: ResourceSamplesResponse
+    - name: ConstraintViolationsResponse
+  scalars:
+    - name: ResourceSchema
+    - name: ResourceSamples
+    - name: ConstraintViolations
+    - name: MerlinSimulationFailureReason
+    - name: ModelArguments
+    - name: ActivityArguments
+    - name: ProfileSet
+    - name: SchedulingFailureReason
+    - name: SequenceSeqJson
+    - name: CommandSeqJson
+    - name: Any

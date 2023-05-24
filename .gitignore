@@ -1,0 +1,70 @@
+## Aerie ##
+/mission_model_files/
+
+## Cache ##
+.DS_Store
+*.tsbuildinfo
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IDE's ###
+.idea
+.vscode
+*.iml
+*.ipr
+*.iws
+**/target/*
+.*.swp
+.tags
+
+### Build ###
+.m2
+*.local
+*.tar
+*.tar.gz
+/.buckd/
+/.nb-gradle/
+/buck-out/
+/build/
+/dist/
+/nbbuild/
+/nbdist/
+/nbproject/private/
+node_modules
+
+# Ignore any SQL files copied from build tasks
+deployment/postgres-init-db/sql/**/*.sql
+!deployment/postgres-init-db/sql/ui/init.sql
+!deployment/postgres-init-db/sql/ui/tables/view.sql
+!deployment/postgres-init-db/sql/ui/tables/schema_migrations.sql
+!deployment/postgres-init-db/sql/ui/applied_migrations.sql
+
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
+# jqwik property-based testing database
+.jqwik-database
+
+# Ignore node test report
+test-report.html
+
+# Ignore any new .env files
+.env
+
+# Ignore docs-related build files
+docs/_build
+docs/**/__pycache__
+docs/source/constraints-edsl-api/
+docs/source/scheduling-edsl-api/
+.doctrees
+*.log

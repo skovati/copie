@@ -1,0 +1,42 @@
+plugins {
+  id 'java-library'
+  id 'maven-publish'
+}
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(19)
+  }
+}
+
+dependencies {
+  implementation project(':merlin-sdk')
+  implementation project(':merlin-framework')
+  // TODO: Generate the NullableValueMapper class so we can remove the "contrib" dependency.
+  implementation project(':contrib')
+
+  implementation 'org.apache.commons:commons-lang3:3.12.0'
+  implementation 'com.squareup:javapoet:1.13.0'
+}
+
+publishing {
+  publications {
+    library(MavenPublication) {
+      version = findProperty('publishing.version')
+      from components.java
+    }
+  }
+
+  publishing {
+    repositories {
+      maven {
+        name = findProperty("publishing.name")
+        url = findProperty("publishing.url")
+        credentials {
+          username = System.getenv(findProperty("publishing.usernameEnvironmentVariable"))
+          password = System.getenv(findProperty("publishing.passwordEnvironmentVariable"))
+        }
+      }
+    }
+  }
+}

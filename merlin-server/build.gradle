@@ -1,0 +1,97 @@
+plugins {
+  id 'java'
+  id 'application'
+  id 'com.github.node-gradle.node' version '3.5.0'
+  id 'jacoco'
+}
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(19)
+  }
+}
+
+node {
+  nodeProjectDir = file("${project.projectDir.toPath().resolve("constraints-dsl-compiler")}")
+  version = '18.13.0'
+  download = true
+}
+
+task assembleConstraintsDSLCompiler(type: NpmTask) {
+  dependsOn processResources
+  dependsOn npmInstall
+  args = ['run', 'build']
+  inputs.files('package.json', 'package-lock.json', 'tsconfig.json')
+  inputs.dir('src')
+}
+
+task generateDocumentation(type: NpmTask) {
+  dependsOn npmInstall
+  dependsOn processResources
+  dependsOn assembleConstraintsDSLCompiler
+  args = ['run', 'generate-doc']
+  inputs.files('package.json', 'package-lock.json', 'tsconfig.json')
+  inputs.dir('src')
+}
+
+task cleanDocsFromDocsDir(type: Delete) {
+  delete rootDir.toPath().resolve('docs/edsl-api-docs/constraints-edsl-api/develop')
+}
+
+task publishDocs {
+  dependsOn cleanDocsFromDocsDir
+  dependsOn generateDocumentation
+}
+
+assemble {
+  dependsOn assembleConstraintsDSLCompiler
+  dependsOn generateDocumentation
+}
+
+test {
+  dependsOn nodeSetup
+  dependsOn assembleConstraintsDSLCompiler
+  useJUnitPlatform {
+    includeEngines 'jqwik', 'junit-jupiter'
+  }
+
+  // Add node bin directory to PATH, helps CI/CD services without node installed
+  environment 'NODE_PATH', nodeSetup.nodeDir.get().toString().concat("/bin/node")
+
+  environment "CONSTRAINTS_DSL_COMPILER_ROOT", projectDir.toPath().resolve('constraints-dsl-compiler')
+  environment "CONSTRAINTS_DSL_COMPILER_COMMAND", './build/main.js'
+}
+
+jacocoTestReport {
+  dependsOn test
+  reports {
+    xml.required = true
+  }
+}
+
+application {
+  mainClass = 'gov.nasa.jpl.aerie.merlin.server.AerieAppDriver'
+  applicationDefaultJvmArgs = ['-Xmx2g']
+}
+
+dependencies {
+  implementation project(':merlin-driver')
+  implementation project(':parsing-utilities')
+  implementation project(':constraints')
+
+  implementation 'org.apache.commons:commons-lang3:3.12.0'
+  implementation 'io.javalin:javalin:5.1.2'
+  implementation 'org.slf4j:slf4j-simple:2.0.3'
+  implementation 'org.glassfish:javax.json:1.1.4'
+  implementation 'org.apache.bcel:bcel:6.6.0'
+
+  implementation 'com.impossibl.pgjdbc-ng:pgjdbc-ng:0.8.9'
+  implementation 'com.zaxxer:HikariCP:5.0.1'
+
+  testImplementation project(':examples:foo-missionmodel')
+  testImplementation project(':merlin-framework')
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+  testImplementation 'org.assertj:assertj-core:3.23.1'
+  testImplementation 'javax.json.bind:javax.json.bind-api:1.0'
+  testImplementation 'net.jqwik:jqwik:1.6.5'
+}

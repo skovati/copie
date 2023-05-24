@@ -1,0 +1,106 @@
+table:
+  name: mission_model
+  schema: public
+object_relationships:
+- name: parameters
+  using:
+    foreign_key_constraint_on:
+      column: model_id
+      table:
+        name: mission_model_parameters
+        schema: public
+- name: uploaded_file
+  using:
+    foreign_key_constraint_on: jar_id
+array_relationships:
+- name: activity_types
+  using:
+    foreign_key_constraint_on:
+      column: model_id
+      table:
+        name: activity_type
+        schema: public
+- name: constraints
+  using:
+    foreign_key_constraint_on:
+      column: model_id
+      table:
+        name: constraint
+        schema: public
+- name: plans
+  using:
+    foreign_key_constraint_on:
+      column: model_id
+      table:
+        name: plan
+        schema: public
+- name: resource_types
+  using:
+    foreign_key_constraint_on:
+      column: model_id
+      table:
+        name: resource_type
+        schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns: [id, revision, mission, name, version, description, owner, jar_id, created_at]
+      filter: {}
+      allow_aggregations: true
+  - role: viewer
+    permission:
+      columns: [id, revision, mission, name, version, description, owner, jar_id, created_at]
+      filter: {}
+      allow_aggregations: true
+event_triggers:
+- definition:
+    enable_manual: false
+    insert:
+      columns: "*"
+    update:
+      columns:
+      - id
+      - revision
+      - jar_id
+      - mission
+      - name
+      - version
+      - owner
+  name: refreshActivityTypes
+  retry_conf:
+    interval_sec: 10
+    num_retries: 0
+    timeout_sec: 300
+  webhook: "{{AERIE_MERLIN_URL}}/refreshActivityTypes"
+- definition:
+    enable_manual: false
+    insert:
+      columns: "*"
+    update:
+      columns:
+      - id
+      - revision
+      - jar_id
+      - mission
+      - name
+      - version
+      - owner
+  name: refreshModelParameters
+  retry_conf:
+    interval_sec: 10
+    num_retries: 0
+    timeout_sec: 300
+  webhook: "{{AERIE_MERLIN_URL}}/refreshModelParameters"
+- definition:
+    enable_manual: false
+    insert:
+      columns: "*"
+    update:
+      columns:
+        - jar_id
+  name: refreshResourceTypes
+  retry_conf:
+    interval_sec: 10
+    num_retries: 0
+    timeout_sec: 300
+  webhook: "{{AERIE_MERLIN_URL}}/refreshResourceTypes"

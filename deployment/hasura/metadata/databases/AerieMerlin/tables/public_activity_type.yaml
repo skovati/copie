@@ -1,0 +1,36 @@
+table:
+  name: activity_type
+  schema: public
+array_relationships:
+  - name: presets
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: activity_presets
+        insertion_order: null
+        column_mapping:
+          model_id: model_id
+          name: associated_activity_type
+remote_relationships:
+- name: expansion_rules
+  definition:
+    to_source:
+      relationship_type: array
+      source: AerieSequencing
+      table:
+        schema: public
+        name: expansion_rule
+      field_mapping:
+        name: activity_type
+select_permissions:
+  - role: user
+    permission:
+      columns: [model_id, name, parameters, required_parameters, computed_attributes_value_schema, subsystem]
+      filter: {}
+      allow_aggregations: true
+  - role: viewer
+    permission:
+      columns: [model_id, name, parameters, required_parameters, computed_attributes_value_schema, subsystem]
+      filter: {}
+      allow_aggregations: true

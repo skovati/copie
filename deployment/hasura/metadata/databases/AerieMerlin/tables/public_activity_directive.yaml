@@ -1,0 +1,83 @@
+table:
+  name: activity_directive
+  schema: public
+object_relationships:
+- name: plan
+  using:
+    foreign_key_constraint_on: plan_id
+- name: validations
+  using:
+    foreign_key_constraint_on:
+      columns:
+        - directive_id
+        - plan_id
+      table:
+        name: activity_directive_validations
+        schema: public
+- name: anchor_validations
+  using:
+    foreign_key_constraint_on:
+      columns:
+        - activity_id
+        - plan_id
+      table:
+        name: anchor_validation_status
+        schema: public
+- name: applied_preset
+  using:
+    foreign_key_constraint_on:
+      columns:
+        - activity_id
+        - plan_id
+      table:
+        name: preset_to_directive
+        schema: public
+array_relationships:
+- name: simulated_activities
+  using:
+    manual_configuration:
+      remote_table:
+        schema: public
+        name: simulated_activity
+      insertion_order: null
+      column_mapping:
+        id: directive_id
+remote_relationships:
+- name: source_scheduling_goal
+  definition:
+    to_source:
+      relationship_type: object
+      source: AerieScheduler
+      table:
+        schema: public
+        name: scheduling_goal
+      field_mapping:
+        source_scheduling_goal_id: id
+select_permissions:
+  - role: user
+    permission:
+      # Need to specify all columns manually
+      columns: [ id, plan_id, name, tags, source_scheduling_goal_id, created_at, last_modified_at, start_offset, type,
+                 arguments, last_modified_arguments_at, metadata, anchor_id, anchored_to_start]
+      filter: {}
+      allow_aggregations: true
+  - role: viewer
+    permission:
+      columns: [ id, plan_id, name, tags, source_scheduling_goal_id, created_at, last_modified_at, start_offset, type,
+                 arguments, last_modified_arguments_at, metadata, anchor_id, anchored_to_start ]
+      filter: {}
+      allow_aggregations: true
+update_permissions:
+  - role: user
+    permission:
+      columns: [name, tags, start_offset, arguments, metadata, anchor_id, anchored_to_start]
+      filter: {"plan":{"_or":[{"owner":{"_eq":"X-Hasura-User-Id"}},{"collaborators":{"collaborator":{"_eq":"X-Hasura-User-Id"}}}]}}
+insert_permissions:
+  - role: user
+    permission:
+      columns: [name, tags, start_offset, arguments, metadata, anchor_id, anchored_to_start, plan_id, type]
+      check: {"plan":{"_or":[{"owner":{"_eq":"X-Hasura-User-Id"}},{"collaborators":{"collaborator":{"_eq":"X-Hasura-User-Id"}}}]}}
+delete_permissions:
+  - role: user
+    permission:
+      filter: {"plan":{"_or":[{"owner":{"_eq":"X-Hasura-User-Id"}},{"collaborators":{"collaborator":{"_eq":"X-Hasura-User-Id"}}}]}}

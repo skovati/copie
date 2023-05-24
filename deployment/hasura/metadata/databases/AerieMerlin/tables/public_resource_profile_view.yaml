@@ -1,0 +1,31 @@
+table:
+  name: resource_profile
+  schema: public
+object_relationships:
+- name: dataset
+  using:
+    manual_configuration:
+      remote_table:
+        name: dataset
+        schema: public
+      column_mapping:
+        dataset_id: id
+- name: profile
+  using:
+    manual_configuration:
+      remote_table:
+        name: profile
+        schema: public
+      column_mapping:
+        profile_id: id
+select_permissions:
+  - role: user
+    permission:
+      columns: [dataset_id, profile_id, start_offset, dynamics, start_time, end_time]
+      filter: {}
+      allow_aggregations: true
+  - role: viewer
+    permission:
+      columns: [dataset_id, profile_id, start_offset, dynamics, start_time, end_time]
+      filter: {}
+      allow_aggregations: true
