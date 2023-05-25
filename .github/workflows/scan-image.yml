@@ -7,21 +7,22 @@ on:
         required: true
         type: string
 
-scan:
-  runs-on: ubuntu-latest
-  permissions:
-    security-events: write
-  steps:
-    - name: Scan Docker image
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: ${{ inputs.image-ref }}
-        ignore-unfixed: true
-        format: 'sarif'
-        output: 'trivy-results.sarif'
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - name: Scan Docker image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ inputs.image-ref }}
+          ignore-unfixed: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
 
-    - name: Upload Trivy scan results to GitHub Security tab
-      if: ${{ always() }}
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        sarif_file: 'trivy-results.sarif'
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: ${{ always() }}
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
