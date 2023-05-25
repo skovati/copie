@@ -7,33 +7,21 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
 jobs:
-  compile:
+  init:
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with:
-          distribution: "temurin"
-          java-version: "19"
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ./build
-            ./**/build
-            ./deployment
-            ./sequencing-server
-            ./merlin-server/constraints-dsl-compiler
-            ./scheduler-worker/scheduling-dsl-compiler
-          key: ${{ runner.os }}-gradle-${{ github.sha }}
       - uses: gradle/wrapper-validation-action@v1
-      - name: assemble project
-        run: ./gradlew assemble --parallel --no-daemon
+      - uses: gradle/gradle-build-action@v2
+      - name: Gradle Version
+        run: ./gradlew --version
 
-  build-push:
+  containers:
     strategy:
       matrix:
         components:
@@ -58,7 +46,7 @@ jobs:
           - image: aerie-postgres
             context: .
             file: ./docker/Dockerfile.postgres
-    needs: compile
+    needs: init
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -66,16 +54,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/cache@v3
+      - uses: actions/setup-java@v3
         with:
-          path: |
-            ./build
-            ./**/build
-            ./deployment
-            ./sequencing-server
-            ./merlin-server/constraints-dsl-compiler
-            ./scheduler-worker/scheduling-dsl-compiler
-          key: ${{ runner.os }}-gradle-${{ github.sha }}
+          distribution: "temurin"
+          java-version: "19"
+
+      - name: Gradle Cache
+        uses: gradle/gradle-build-action@v2
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -97,6 +82,15 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/skovati/${{ matrix.components.image }}
+
+      - name: Assemble Component
+        run: |
+          if [[ ${{ matrix.component.context }} == "." ]]; then
+            # aerie-hasura and aerie-postgres don't need compiled java
+            ./gradlew distributeSql --no-daemon
+          else
+            ./gradlew ":${{ matrix.component.context }}:assemble" --no-daemon
+          fi
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
@@ -139,3 +133,26 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: 'trivy-results.sarif'
+
+  publish:
+    needs: init
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Gradle Cache
+        uses: gradle/gradle-build-action@v2
+
+      - name: Publish Package
+        run: ./gradlew publish -Pversion.isRelease=$IS_RELEASE
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Create deployment archive
+        run: ./gradlew archiveDeployment
+
+      - name: Publish deployment
+        uses: actions/upload-artifact@v3
+        with:
+          name: Deployment
+          path: deployment.tar
