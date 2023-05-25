@@ -109,8 +109,7 @@ jobs:
         run: sleep 15
 
       # Kick off scan at the end of each build so they happen ASAP
-      - name: Scan Docker image
-        run-name: Scan ${{ matrix.components.image }}
+      - name: Scan ${{ matrix.components.image }}
         uses: ./.github/workflows/scan-image.yml
         with:
           image-ref: ${{ env.REGISTRY }}/skovati/${{ matrix.components.image }}:main
