@@ -7,6 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  OWNER: skovati
   IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
 jobs:
@@ -59,7 +60,7 @@ jobs:
           distribution: "temurin"
           java-version: "19"
 
-      - name: Gradle Cache
+      - name: Init Gradle cache
         uses: gradle/gradle-build-action@v2
 
       - name: Set up QEMU
@@ -70,20 +71,20 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Login to the Container Registry
+      - name: Login to ${{ env.REGISTRY }}
         uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: Extract metadata (tags, labels) for Docker image
-        id: metadataStep
+      - name: Extract metadata (tags, labels) for ${{ matrix.components.image }}
+        id: metadata-step
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/skovati/${{ matrix.components.image }}
+          images: ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ matrix.components.image }}
 
-      - name: Assemble Component
+      - name: Assemble ${{ matrix.components.context }}
         env:
           component: ${{ matrix.components.context }}
         run: |
@@ -95,24 +96,24 @@ jobs:
             ./gradlew ":$component:assemble" --no-daemon
           fi
 
-      - name: Build and push Docker image
+      - name: Build and push ${{ matrix.components.image }}
         uses: docker/build-push-action@v3
         with:
           context: ${{ matrix.components.context }}
           file: ${{ matrix.components.file }}
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ steps.metadataStep.outputs.tags }}
-          labels: ${{ steps.metadataStep.outputs.labels }}
+          tags: ${{ steps.metadata-step.outputs.tags }}
+          labels: ${{ steps.metadata-step.outputs.labels }}
 
       # Make sure newly pushed image is scanned
       - name: Sleep 15 seconds
         run: sleep 15
 
-      - name: Scan ${{ matrix.components.image }}
+      - name: Scan ${{ matrix.components.image }} for vulnerabilities
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.REGISTRY }}/skovati/${{ matrix.components.image }}:main
+          image-ref: ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ matrix.components.image }}:main
           ignore-unfixed: true
           format: 'sarif'
           output: 'trivy-results.sarif'
