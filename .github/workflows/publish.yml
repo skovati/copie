@@ -84,12 +84,14 @@ jobs:
           images: ${{ env.REGISTRY }}/skovati/${{ matrix.components.image }}
 
       - name: Assemble Component
+        env:
+          component: ${{ matrix.component.context }}
         run: |
-          if [[ ${{ matrix.component.context }} == "." ]]; then
+          if [[ "$component" == "." ]]; then
             # aerie-hasura and aerie-postgres don't need compiled java
             ./gradlew distributeSql --no-daemon
           else
-            ./gradlew ":${{ matrix.component.context }}:assemble" --no-daemon
+            ./gradlew ":$component:assemble" --no-daemon
           fi
 
       - name: Build and push Docker image
