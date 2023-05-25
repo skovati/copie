@@ -141,6 +141,8 @@ jobs:
       contents: read
       packages: write
     steps:
+      - uses: actions/checkout@v3
+
       - name: Gradle Cache
         uses: gradle/gradle-build-action@v2
 
