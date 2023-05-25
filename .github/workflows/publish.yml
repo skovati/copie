@@ -54,7 +54,7 @@ jobs:
           - image: aerie-postgres
             context: .
             file: docker/Dockerfile.postgres
-    name: Publish ${{ matrix.components.image }} image
+    name: ${{ matrix.components.image }}
     steps:
       - uses: actions/checkout@v3
 
