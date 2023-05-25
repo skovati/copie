@@ -19,6 +19,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: gradle/wrapper-validation-action@v1
       - uses: gradle/gradle-build-action@v2
+        with:
+          generate-job-summary: false
       - run: ./gradlew --version
 
   containers:
@@ -52,6 +54,7 @@ jobs:
           - image: aerie-postgres
             context: .
             file: docker/Dockerfile.postgres
+    name: Publish ${{ matrix.components.image }} image
     steps:
       - uses: actions/checkout@v3
 
@@ -62,6 +65,8 @@ jobs:
 
       - name: Init Gradle cache
         uses: gradle/gradle-build-action@v2
+        with:
+          generate-job-summary: false
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -135,6 +140,8 @@ jobs:
   #
   #     - name: Gradle Cache
   #       uses: gradle/gradle-build-action@v2
+  #       with:
+  #         generate-job-summary: false
   #
   #     - name: Publish Package
   #       run: ./gradlew publish -Pversion.isRelease=$IS_RELEASE
