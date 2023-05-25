@@ -98,7 +98,7 @@ jobs:
             # aerie-hasura and aerie-postgres don't need compiled java
             ./gradlew distributeSql --no-daemon
           else
-            ./gradlew ":$component:assemble" --no-daemon
+            ./gradlew ":$component:assemble" --no-daemon --parallel
           fi
 
       - name: Build and push ${{ matrix.components.image }}
