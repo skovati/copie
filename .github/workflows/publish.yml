@@ -31,26 +31,26 @@ jobs:
       matrix:
         components:
           - image: aerie-merlin
-            context: ./merlin-server
-            file: ./merlin-server/Dockerfile
+            context: merlin-server
+            file: merlin-server/Dockerfile
           - image: aerie-merlin-worker
-            context: ./merlin-worker
-            file: ./merlin-worker/Dockerfile
+            context: merlin-worker
+            file: merlin-worker/Dockerfile
           - image: aerie-scheduler
-            context: ./scheduler-server
-            file: ./scheduler-server/Dockerfile
+            context: scheduler-server
+            file: scheduler-server/Dockerfile
           - image: aerie-scheduler-worker
-            context: ./scheduler-worker
-            file: ./scheduler-worker/Dockerfile
+            context: scheduler-worker
+            file: scheduler-worker/Dockerfile
           - image: aerie-sequencing
-            context: ./sequencing-server
-            file: ./sequencing-server/Dockerfile
+            context: sequencing-server
+            file: sequencing-server/Dockerfile
           - image: aerie-hasura
             context: .
-            file: ./docker/Dockerfile.hasura
+            file: docker/Dockerfile.hasura
           - image: aerie-postgres
             context: .
-            file: ./docker/Dockerfile.postgres
+            file: docker/Dockerfile.postgres
     steps:
       - uses: actions/checkout@v3
 
