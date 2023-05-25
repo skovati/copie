@@ -85,7 +85,7 @@ jobs:
 
       - name: Assemble Component
         env:
-          component: ${{ matrix.component.context }}
+          component: ${{ matrix.components.context }}
         run: |
           if [[ "$component" == "." ]]; then
             # aerie-hasura and aerie-postgres don't need compiled java
@@ -136,28 +136,28 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
-  publish:
-    runs-on: ubuntu-latest
-    needs: init
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Gradle Cache
-        uses: gradle/gradle-build-action@v2
-
-      - name: Publish Package
-        run: ./gradlew publish -Pversion.isRelease=$IS_RELEASE
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-
-      - name: Create deployment archive
-        run: ./gradlew archiveDeployment
-
-      - name: Publish deployment
-        uses: actions/upload-artifact@v3
-        with:
-          name: Deployment
-          path: deployment.tar
+  # publish:
+  #   runs-on: ubuntu-latest
+  #   needs: init
+  #   permissions:
+  #     contents: read
+  #     packages: write
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #
+  #     - name: Gradle Cache
+  #       uses: gradle/gradle-build-action@v2
+  #
+  #     - name: Publish Package
+  #       run: ./gradlew publish -Pversion.isRelease=$IS_RELEASE
+  #       env:
+  #         GITHUB_TOKEN: ${{ github.token }}
+  #
+  #     - name: Create deployment archive
+  #       run: ./gradlew archiveDeployment
+  #
+  #     - name: Publish deployment
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: Deployment
+  #         path: deployment.tar
