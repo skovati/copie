@@ -26,6 +26,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      security-events: write
     strategy:
       matrix:
         components:
@@ -108,11 +109,19 @@ jobs:
       - name: Sleep 15 seconds
         run: sleep 15
 
-      # Kick off scan at the end of each build so they happen ASAP
       - name: Scan ${{ matrix.components.image }}
-        uses: ./.github/workflows/scan-image.yml
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.REGISTRY }}/skovati/${{ matrix.components.image }}:main
+          ignore-unfixed: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: ${{ always() }}
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
 
   # publish:
   #   runs-on: ubuntu-latest
