@@ -3,7 +3,7 @@ name: Test
 on:
   push:
     branches:
-      - main
+      - temp
 
 env:
   AERIE_USERNAME: "aerie"
