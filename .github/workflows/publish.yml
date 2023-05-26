@@ -122,39 +122,40 @@ jobs:
           ignore-unfixed: true
           exit-code: '0'
           severity: 'CRITICAL'
-          format: 'table'
-          # output: 'trivy-results.sarif'
+          format: 'html'
+          template: "@contrib/html.tpl"
+          output: '${{ matrix.components.image }}-results.html'
 
-      # - name: Upload Trivy scan results to GitHub Security tab
-      #   if: ${{ always() }}
-      #   uses: github/codeql-action/upload-sarif@v2
-      #   with:
-      #     sarif_file: 'trivy-results.sarif'
+      - name: Upload ${{ matrix.components.image }} scan results
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.components.image }} Scan Results
+          path: '${{ matrix.components.image }}-results.html'
 
-  # publish:
-  #   runs-on: ubuntu-latest
-  #   needs: init
-  #   permissions:
-  #     contents: read
-  #     packages: write
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #
-  #     - name: Gradle Cache
-  #       uses: gradle/gradle-build-action@v2
-  #       with:
-  #         generate-job-summary: false
-  #
-  #     - name: Publish Package
-  #       run: ./gradlew publish -Pversion.isRelease=$IS_RELEASE
-  #       env:
-  #         GITHUB_TOKEN: ${{ github.token }}
-  #
-  #     - name: Create deployment archive
-  #       run: ./gradlew archiveDeployment
-  #
-  #     - name: Publish deployment
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: Deployment
-  #         path: deployment.tar
+  publish:
+    runs-on: ubuntu-latest
+    needs: init
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Gradle Cache
+        uses: gradle/gradle-build-action@v2
+        with:
+          generate-job-summary: false
+
+      - name: Publish Package
+        run: ./gradlew publish -Pversion.isRelease=$IS_RELEASE --parallel
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Create deployment archive
+        run: ./gradlew archiveDeployment
+
+      - name: Publish deployment
+        uses: actions/upload-artifact@v3
+        with:
+          name: Deployment
+          path: deployment.tar
