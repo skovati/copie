@@ -214,11 +214,9 @@ services:
       HASURA_GRAPHQL_LOG_LEVEL: info
       HASURA_GRAPHQL_METADATA_DATABASE_URL: 'postgres://${AERIE_USERNAME}:${AERIE_PASSWORD}@postgres:5432/aerie_hasura'
       HASURA_GRAPHQL_METADATA_DIR: /hasura-metadata
-    image: 'hasura/graphql-engine:v2.12.1.cli-migrations-v3'
+    image: ghcr.io/skovati/aerie-hasura:main
     ports: ['8080:8080']
     restart: always
-    volumes:
-      - ./../deployment/hasura/metadata:/hasura-metadata
   postgres:
     container_name: postgres
     environment:
@@ -227,12 +225,11 @@ services:
       POSTGRES_USER: '${POSTGRES_USER}'
       AERIE_USERNAME: '${AERIE_USERNAME}'
       AERIE_PASSWORD: '${AERIE_PASSWORD}'
-    image: postgres:14.1
+    image: ghcr.io/skovati/aerie-postgres:main
     ports: ['5432:5432']
     restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./../deployment/postgres-init-db:/docker-entrypoint-initdb.d
 
 volumes:
   aerie_file_store:
