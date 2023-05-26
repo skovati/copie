@@ -123,7 +123,8 @@ jobs:
           exit-code: '0'
           severity: 'CRITICAL'
           format: 'template'
-          template: "@contrib/html.tpl"
+          template: "@/contrib/html.tpl"
+          scanners: "vuln"
           output: '${{ matrix.components.image }}-results.html'
 
       - name: Upload ${{ matrix.components.image }} scan results
